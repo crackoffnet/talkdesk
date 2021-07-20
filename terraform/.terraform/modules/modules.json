@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"eks","Source":"./modules/eks","Dir":"modules/eks"},{"Key":"networking","Source":"./modules/networking","Dir":"modules/networking"},{"Key":"","Source":"","Dir":"."}]}
+{"Modules":[{"Key":"networking","Source":"./modules/networking","Dir":"modules/networking"},{"Key":"","Source":"","Dir":"."},{"Key":"eks","Source":"./modules/eks","Dir":"modules/eks"}]}

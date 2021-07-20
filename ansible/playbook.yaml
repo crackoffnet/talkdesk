@@ -1,0 +1,38 @@
+---
+  - name: Deploying via Ansible
+    hosts: localhost
+    tasks:
+
+    - name: Run Terraform scripts
+      shell: |
+         cd ../terraform/
+         terraform init
+         terraform apply -var 'env=dr' -auto-approve
+         terraform output kubectl_config > output
+         sed '$d' < output | sed "1d" > config
+         kubectl --kubeconfig=config get nodes -o wide
+         cp config ../ansible/
+      register: terraform
+      async: 3600
+      poll: 10
+    - debug: msg="{{terraform.stdout_lines}}"
+
+    - name: Deploy Nginx ingress
+      shell: |
+         echo "Deploying Nginx Ingress"
+         kubectl --kubeconfig=config apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/aws/deploy.yaml
+      register: ingress
+      async: 3600
+      poll: 10
+    - debug: msg="{{ingress.stdout_lines}}"
+
+    - name: Run deployment manifests
+      shell: |
+         kubectl --kubeconfig=config get nodes -o wide
+         echo "Deploying on Kubernetes"
+         kubectl --kubeconfig=config apply -f deployment.yaml
+         echo "Here is the link you can open to see the final result:"
+         kubectl --kubeconfig=config get ingress talkdesk-ingress | awk -F" " '{ print $4}' | tail -n +2
+
+      register: nodelist
+    - debug: msg="{{nodelist.stdout_lines}}"
