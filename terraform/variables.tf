@@ -13,3 +13,18 @@ variable "region" {
   }
 }
 
+variable "cluster_names" {
+  description = "Names of the EKS clusters deployed in this VPC."
+  type        = list(string)
+  default     = []
+}
+
+variable "availability_zones" {
+  description = "Names of the EKS clusters deployed in this VPC."
+
+  default = []
+}
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  default     = {}
+}
