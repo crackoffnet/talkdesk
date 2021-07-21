@@ -106,7 +106,7 @@ resource "aws_eks_cluster" "eks" {
   ]
 }
 
-resource "aws_eks_node_group" "eks-node-db" {
+resource "aws_eks_node_group" "eks-node" {
   cluster_name    = var.cluster_name
   node_group_name = "${var.cluster_name}-${var.env}"
   node_role_arn   = aws_iam_role.node.arn

@@ -36,12 +36,12 @@
 
     - name: Run deployment manifests
       shell: |
-         echo "Deploying on Kubernetes"
-         kubectl --kubeconfig=config apply -f deployment.yaml
-         kubectl --kubeconfig=config rollout status deployment talkdesk-deployment
-
-         echo "Here is the link you can open to see the final result:"
-         kubectl --kubeconfig=config get ingress talkdesk-ingress | awk '{ print $4}' | tail -n +1
+        echo "Deploying on Kubernetes"
+        kubectl --kubeconfig=config apply -f deployment.yaml
+        kubectl --kubeconfig=config rollout status deployment talkdesk-deployment
+       
+        echo "Here is the link you can open to see the final result:"
+        kubectl --kubeconfig=config get ingress talkdesk-ingress | awk '{ print $4}' | tail -n +2
 
       register: nodelist
     - debug: msg="{{nodelist.stdout_lines}}"
