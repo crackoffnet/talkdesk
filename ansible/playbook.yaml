@@ -39,9 +39,11 @@
         echo "Deploying on Kubernetes"
         kubectl --kubeconfig=config apply -f deployment.yaml
         kubectl --kubeconfig=config rollout status deployment talkdesk-deployment
+        
+        echo "Waiting for ingress/dns/public access become ready..."
+        sleep 5m
        
         echo "Here is the link you can open to see the final result:"
         kubectl --kubeconfig=config get ingress talkdesk-ingress | awk '{ print $4}' | tail -n +2
-
       register: nodelist
     - debug: msg="{{nodelist.stdout_lines}}"
