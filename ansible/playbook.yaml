@@ -1,16 +1,24 @@
 ---
   - name: Deploying via Ansible
     hosts: localhost
+    vars_prompt:
+      - name: "aws_access_key"
+        prompt: "Please write your AWS_ACCESS_KEY"
+      - name: "aws_secret_key"
+        prompt: "Please write your AWS_SECRET_KEY"
+    
     tasks:
-
     - name: Run Terraform scripts
       shell: |
          cd ../terraform/
+         echo "Set AWS credentials"
+         sed -i '/access_key = ""/c\  access_key = "{{ aws_access_key }}"' provider.tf
+         sed -i '/secret_key = ""/c\  secret_key = "{{ aws_secret_key }}"' provider.tf
+         echo "Starting terraform initialization"
          terraform init
          terraform apply -var 'env=dr' -auto-approve
          terraform output kubectl_config > output
          sed '$d' < output | sed "1d" > config
-         kubectl --kubeconfig=config get nodes -o wide
          cp config ../ansible/
       register: terraform
       async: 3600
@@ -28,11 +36,12 @@
 
     - name: Run deployment manifests
       shell: |
-         kubectl --kubeconfig=config get nodes -o wide
          echo "Deploying on Kubernetes"
          kubectl --kubeconfig=config apply -f deployment.yaml
+         kubectl --kubeconfig=config rollout status deployment talkdesk-deployment
+
          echo "Here is the link you can open to see the final result:"
-         kubectl --kubeconfig=config get ingress talkdesk-ingress | awk -F" " '{ print $4}' | tail -n +2
+         kubectl --kubeconfig=config get ingress talkdesk-ingress | awk '{ print $4}' | tail -n +1
 
       register: nodelist
     - debug: msg="{{nodelist.stdout_lines}}"
